@@ -30,13 +30,13 @@ class MainActivity : AppCompatActivity() {
     private fun showList (list: List<ShopItem>) {
         llShopList.removeAllViews()
         for (shopItem in list) {
-            val layoutId = if (shopItem.enabled){
+            val layoutId = if (shopItem.enabled) {
                 R.layout.item_shop_enabeld
             } else {
                 R.layout.item_shop_disabled
             }
 
-        val view = LayoutInflater.from(this).inflate(layoutId,  llShopList, false)
+            val view = LayoutInflater.from(this).inflate(layoutId, llShopList, false)
             val tvName = findViewById<TextView>(R.id.tv_name)
             val tvCount = findViewById<TextView>(R.id.tv_count)
             tvName.text = shopItem.name
@@ -46,6 +46,6 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             llShopList.addView(view)
-
+        }
     }
 }
