@@ -1,12 +1,12 @@
 package com.example.shoplist.presentation
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplist.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,11 +22,16 @@ class MainActivity : AppCompatActivity() {
         viewModel.shopList.observe(this) {
             shopListAdapter.submitList(it)
         }
+        val buttonAdd = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
+        buttonAdd.setOnClickListener {
+            val intent = ShopItemActivity.newIntentAddItem(this)
+            startActivity(intent)
+        }
     }
 
-    private fun setupRecyclerView () {
-        val rvShopList =findViewById<RecyclerView>(R.id.rv_shop_list)
-        shopListAdapter= ShopListAdapter()
+    private fun setupRecyclerView() {
+        val rvShopList = findViewById<RecyclerView>(R.id.rv_shop_list)
+        shopListAdapter = ShopListAdapter()
         rvShopList.adapter = shopListAdapter
         rvShopList.recycledViewPool.setMaxRecycledViews(
             ShopListAdapter.VIEW_TYPE_ENABLED, ShopListAdapter.MAX_POOL_SIZE
@@ -39,11 +44,11 @@ class MainActivity : AppCompatActivity() {
         setupSwipeListener(rvShopList)
     }
 
-    private fun setupSwipeListener (rvShopList: RecyclerView) {
+    private fun setupSwipeListener(rvShopList: RecyclerView) {
         val callback = object : ItemTouchHelper.SimpleCallback(
             0,
             ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        ){
+        ) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -61,13 +66,15 @@ class MainActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(rvShopList)
     }
 
-    private fun setupClickListener () {
+    private fun setupClickListener() {
         shopListAdapter.onShopItemClickListner = {
-            Log.d("test", it.toString())
+            val shopItem = it.id
+            val intent = ShopItemActivity.newIntentEdit(this, shopItem)
+            startActivity(intent)
         }
     }
 
-    private fun setupLongClickListener () {
+    private fun setupLongClickListener() {
         shopListAdapter.onShopItemLongClickListner = {
             viewModel.changeEnableStare(it)
         }
