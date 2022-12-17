@@ -1,0 +1,13 @@
+package com.example.shoplist.data
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "shop_items")
+data class ShopItemDbModel (
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    var name: String,
+    val enabled: Boolean,
+    val count: Int
+)
