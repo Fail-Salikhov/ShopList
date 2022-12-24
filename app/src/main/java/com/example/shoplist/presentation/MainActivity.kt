@@ -1,6 +1,8 @@
 package com.example.shoplist.presentation
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,23 +13,36 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoplist.R
 import com.example.shoplist.databinding.ActivityMainBinding
+import com.example.shoplist.domain.ShopItem
+import com.example.shoplist.domain.ViewModelFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
     private lateinit var binding: ActivityMainBinding
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private lateinit var viewModel: MainViewModel
 
     private lateinit var shopListAdapter: ShopListAdapter
 
+    private val component by lazy {
+        (application as ShopListApp).component
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 //        setContentView(R.layout.activity_main)
         setupRecyclerView()
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
         viewModel.shopList.observe(this) {
             shopListAdapter.submitList(it)
         }
@@ -39,6 +54,30 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
                 launchFragment(ShopItemFragment.newInstanceAddItem())
             }
         }
+        thread {
+            val cursor = contentResolver.query(
+                Uri.parse("content://com.example.shoplist/shop_items"),
+                null,
+                null,
+                null,
+                null,
+                null,
+                )
+            while (cursor?.moveToNext() == true){
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+                val count = cursor.getInt(cursor.getColumnIndexOrThrow("count"))
+                val enabled = cursor.getInt(cursor.getColumnIndexOrThrow("enabled")) >0
+                val shopItem = ShopItem (
+                    id = id,
+                    name = name,
+                    enabled = enabled,
+                    count = count)
+                Log.d("MainActivity", shopItem.toString())
+            }
+            cursor?.close()
+        }
+
     }
 
     override fun onEditingFinished() {

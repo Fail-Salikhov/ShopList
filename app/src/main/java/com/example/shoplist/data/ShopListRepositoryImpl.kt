@@ -6,13 +6,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.shoplist.domain.ShopItem
 import com.example.shoplist.domain.ShopListRepository
+import javax.inject.Inject
 import kotlin.random.Random
 
-class ShopListRepositoryImpl(application: Application) : ShopListRepository {
+class ShopListRepositoryImpl @Inject constructor(
+    private val shopListDao: ShopListDao,
+    private val mapper: ShopListMapper
+) : ShopListRepository {
 
-    private val shopListDao = AppDatabase.getInstance(application).shopListDao()
-
-    private val mapper = ShopListMapper()
 
     override suspend fun addShopItem(shopItem: ShopItem) {
         shopListDao.addShopItem(mapper.mapEntityToDBModel(shopItem))
@@ -26,9 +27,10 @@ class ShopListRepositoryImpl(application: Application) : ShopListRepository {
         shopListDao.addShopItem(mapper.mapEntityToDBModel(shopItem))
     }
 
-    override fun getShopList(): LiveData<List<ShopItem>> = Transformations.map(shopListDao.getShopList()){
-        mapper.mapListDBModelToListEntity(it)
-    }
+    override fun getShopList(): LiveData<List<ShopItem>> =
+        Transformations.map(shopListDao.getShopList()) {
+            mapper.mapListDBModelToListEntity(it)
+        }
 
 
     override suspend fun getShopItem(shopItemId: Int): ShopItem {

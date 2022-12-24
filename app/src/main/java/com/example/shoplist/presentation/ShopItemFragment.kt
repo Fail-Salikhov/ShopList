@@ -15,22 +15,32 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.shoplist.R
 import com.example.shoplist.databinding.FragmentShopItemBinding
 import com.example.shoplist.domain.ShopItem
+import com.example.shoplist.domain.ViewModelFactory
 import com.google.android.material.textfield.TextInputLayout
+import javax.inject.Inject
 
-class ShopItemFragment: Fragment() {
+class   ShopItemFragment: Fragment() {
 
     private var _binding:FragmentShopItemBinding? = null
     val binding : FragmentShopItemBinding
     get() = _binding ?: throw RuntimeException("FragmentShopItemBinding")
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private lateinit var viewModel: ShopItemViewModel
     private lateinit var onEditingFinishedListener: OnEditingFinishedListener
+
+    private val component by lazy {
+        (requireActivity().application as ShopListApp).component
+    }
 
 
     private var screenMode: String = MODE_UNKNOWN
     private var shopItemId: Int = ShopItem.UNDEFINED_ID
 
     override fun onAttach(context: Context){
+        component.inject(this)
         super.onAttach(context)
         Log.d("FragmentLC", "onAttach")
         if (context is OnEditingFinishedListener){
@@ -57,7 +67,7 @@ class ShopItemFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
+        viewModel = ViewModelProvider(this, viewModelFactory)[ShopItemViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         addTextChangeListeners()
