@@ -175,11 +175,16 @@ class   ShopItemFragment: Fragment() {
         }
 
         fun newInstanceAddItem (): ShopItemFragment {
-            return ShopItemFragment().apply {
-                arguments = Bundle().apply {
-                    putString(SCREEN_MODE, MODE_ADD)
-                }
-            }
+//            return ShopItemFragment().apply {
+//                arguments = Bundle().apply {
+//                    putString(SCREEN_MODE, MODE_ADD)
+//                }
+//            }
+            val args = Bundle()
+            args.putString(SCREEN_MODE, MODE_ADD)
+            val fragment = ShopItemFragment()
+            fragment.arguments = args
+            return fragment
         }
     }
 }
